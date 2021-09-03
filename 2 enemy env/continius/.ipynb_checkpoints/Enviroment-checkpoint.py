@@ -11,7 +11,7 @@ from Stating import State_Env
 from obstacle import Obstacle
 
 class Enviroment(Env):
-    def __init__(self, obstacle, Viz, War):
+    def __init__(self, obstacle, Viz, War, head_velocity):
         self.mode_war = War
         self.vizualaze = Viz
         self.obstacle = obstacle
@@ -41,7 +41,7 @@ class Enviroment(Env):
         img_folder = os.path.join(game_folder, 'img')
         player_img = pygame.image.load(os.path.join(img_folder, 'rtk.png')).convert()
         self.boom = pygame.image.load(os.path.join(img_folder, 'boom.png')).convert()
-
+        self.head_veloity = head_velocity
         # кастомизация среды
         self.circle_radius = 10     # радиус финиша
         self.num_obstacle = 7       # количество препятствий
@@ -218,7 +218,7 @@ class Enviroment(Env):
 
         # создаем робота в случайной точке карте
         self.RTK = RTK_cls(self, [random.randint(50, self.width - 50), random.randint(50, self.height - 50)],
-                           player_img)
+                           player_img, 90, self.head_veloity)
         # проверяем не попал ли робот в препятствие
         SS = pygame.sprite.spritecollide(self.RTK, self.obstacle_group_sprite, False)
         while SS:
@@ -230,7 +230,7 @@ class Enviroment(Env):
         if self.mode_war:
             self.enemy_RTK_group_sprite = pygame.sprite.GroupSingle()
             self.RTK_enemy = RTK_cls(self, [random.randint(50, self.width - 50), random.randint(50, self.height - 50)],
-                                     player_img)
+                                     player_img, 100, self.head_veloity)
             SS = pygame.sprite.spritecollide(self.RTK_enemy, self.obstacle_group_sprite, False)
             self.Df = math.sqrt(
                 (self.RTK.x_pos - self.RTK_enemy.x_pos) ** 2 + (self.RTK.y_pos - self.RTK_enemy.y_pos) ** 2)

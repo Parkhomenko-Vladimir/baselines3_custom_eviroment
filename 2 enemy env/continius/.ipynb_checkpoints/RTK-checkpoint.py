@@ -7,7 +7,7 @@ import os
 
 
 class RTK_cls(pygame.sprite.Sprite):
-    def __init__(self, env, pos, player_img):
+    def __init__(self, env, pos, player_img, rangelidar, velocity_head):
         self.dt = 0.1
         pygame.sprite.Sprite.__init__(self)
         self.x_pos = pos[0]
@@ -23,13 +23,13 @@ class RTK_cls(pygame.sprite.Sprite):
         self.last_pos = 0
         self.env = env
 
-        self.range_lidar = 100
+        self.range_lidar = rangelidar
         self.revie_lidar = (-math.pi / 4, math.pi / 4)
         self.angel_lidar = np.linspace(self.revie_lidar[0], self.revie_lidar[1], 90)
 
         self.pointLidar = ()
 
-        self.head_angle_velocity = 0.04  #скорость поворота башни
+        self.head_angle_velocity = velocity_head  #скорость поворота башни
 
     def update(self, action):
         self.last_pos = [self.x_pos, self.y_pos]
@@ -96,7 +96,7 @@ class RTK_cls(pygame.sprite.Sprite):
         for angles in self.angel_lidar:
             angle = angles + self.theta
             x2, y2 = (x1 + self.range_lidar * math.cos(angle), y1 - self.range_lidar * math.sin(angle))
-            for i in range(0, self.range_lidar):
+            for i in range(0, self.range_lidar+1):
                 u = i / self.range_lidar
                 x = int(x2 * u + x1 * (1 - u))
                 y = int(y2 * u + y1 * (1 - u))
@@ -107,7 +107,7 @@ class RTK_cls(pygame.sprite.Sprite):
                         data.append(distance)
                         points.append((x, y))
                         break
-                    elif u == 0.99:
+                    elif i == self.range_lidar:
                         distance = self.distance((x, y))
                         points.append((x, y))
                         data.append(distance)
@@ -116,7 +116,7 @@ class RTK_cls(pygame.sprite.Sprite):
                     points.append((x, y))
                     data.append(distance)
 
-                    n = 1+1
+            n = 1+1
         return data, points
     def draw_boom(self):
         self.img = self.env.boom

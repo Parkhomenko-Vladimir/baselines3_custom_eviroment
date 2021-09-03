@@ -7,7 +7,7 @@ from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 
 
 class CustomCNN(BaseFeaturesExtractor):
-    def __init__(self, observation_space: gym.spaces.Dict, features_dim: int = 1029):
+    def __init__(self, observation_space: gym.spaces.Dict, features_dim: int = 2310):
         """
         Инициализация нейронки
         :param observation_space: (gym.Space) Размер входного изображения
@@ -23,7 +23,6 @@ class CustomCNN(BaseFeaturesExtractor):
             
                 extractors[key] = nn.Sequential(
 
-
                 nn.Conv2d(n_input_channels, 32, 2),
                 nn.MaxPool2d(2, 2),
                 nn.Conv2d(32, 64, 2),
@@ -33,27 +32,29 @@ class CustomCNN(BaseFeaturesExtractor):
                 nn.MaxPool2d(4, 4),
                 ResBlock(n_filters=64, kernel_size=2),
                 nn.MaxPool2d(2, 2),
-
                 ResBlock(n_filters=64, kernel_size=2),
                 nn.MaxPool2d(2, 2),
-                ResBlock(n_filters=64, kernel_size=2),    
-
-                nn.Conv2d(64, 64, 4),
+                ResBlock(n_filters=64, kernel_size=2), 
+                nn.MaxPool2d(2, 2),
+                
+                nn.Conv2d(64, 128, 2),
                 nn.Flatten())
                     
             elif key == "posRobot":
-                n_input_channels = observation_space[key].shape[0]
                             
-                extractors[key] = nn.Sequential(nn.Linear(n_input_channels, 36),
+                extractors[key] = nn.Sequential(nn.Linear(3, 9),
                                         nn.ReLU(),
-                                        nn.Linear(36, n_input_channels))
+                                        nn.Linear(9, 9),
+                                        nn.ReLU(),
+                                        nn.Linear(9, 3))
                     
             elif key == "target":
-                n_input_channels = observation_space[key].shape[0]
                             
-                extractors[key] = nn.Sequential(nn.Linear(n_input_channels, 36),
+                extractors[key] = nn.Sequential(nn.Linear(3, 9),
                                         nn.ReLU(),
-                                        nn.Linear(36, n_input_channels))
+                                        nn.Linear(9, 9),
+                                        nn.ReLU(),
+                                        nn.Linear(9, 3))
                 
         self.extractors = nn.ModuleDict(extractors)
 
@@ -83,7 +84,8 @@ class ResBlock(nn.Module):
         self.n_filters = n_filters
         self.kernel_size = kernel_size
 
-        self.b1 = nn.Conv2d(self.n_filters, self.n_filters, self.kernel_size, padding='same')        
+        self.b1 = nn.Conv2d(self.n_filters, self.n_filters, self.kernel_size, padding='same')
+    
         self.b2 = nn.BatchNorm2d(self.n_filters, eps = 0.001, momentum= 0.99)
         self.b3 = nn.Conv2d(self.n_filters, self.n_filters, self.kernel_size, padding='same')
         self.b4 = nn.BatchNorm2d(self.n_filters, eps = 0.001, momentum= 0.99)

@@ -24,11 +24,11 @@ class CustomEnv(gym.Env):
 
         state = self.env1.reset()
         
-        self.action_space = spaces.Box(low=np.array([2, -3.14]), high=np.array([10, 3.14]), dtype=np.float16)
+        self.action_space = spaces.Box(low=np.array([-5, -3.14]), high=np.array([50, 3.14]), dtype=np.float16)
         self.observation_space = gym.spaces.Dict({
         'img': spaces.Box(low=0, high=255, shape=(500, 500, 3), dtype=np.uint8),
-        'posRobot': spaces.Box(low=np.array([0, 0,-3.14]), high=np.array([500, 500, 3.14])),
-        'target': spaces.Box(low=np.array([0, 0,-3.14]), high=np.array([500, 500, 3.14]))})
+        'posRobot': spaces.Box(low=np.array([0, 0, -3.14]), high=np.array([500, 500, 3.14])),
+        'target': spaces.Box(low=np.array([0, 0, -3.14]), high=np.array([500, 500, 3.14]))})
 
     def step(self, action):
         """

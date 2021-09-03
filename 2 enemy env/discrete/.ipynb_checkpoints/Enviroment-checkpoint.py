@@ -26,7 +26,7 @@ class Enviroment(Env):
         self.red = (255, 0, 0)
         self.yel = (255, 255, 0)
         # настройка выходных данных
-        self.done = False
+        self.done = True
         self.reward = 0
         self.koef = 3
         self.num_step = 0
@@ -61,7 +61,7 @@ class Enviroment(Env):
     def step(self, action):
         self.num_step += 1
         if self.num_step > 1500:
-            return self.ever, self.reward, True, self.num_step
+            return self.ever, self.reward, False, self.num_step
         self.alies_RTK_group_sprite.update(action)
 
         self.map.fill(self.white)
@@ -94,17 +94,17 @@ class Enviroment(Env):
 
 
 
-            self.ever.target = np.array((self.RTK_enemy.x_pos, self.RTK_enemy.y_pos, self.RTK_enemy.theta))
+            self.ever.target = (self.RTK_enemy.x_pos, self.RTK_enemy.y_pos, self.RTK_enemy.theta)
 
         else:
             self.alies_RTK_group_sprite.draw(self.map)
             pygame.draw.circle(self.map, self.green, self.circle_center, self.circle_radius)
 
-            self.ever.target = np.array(self.circle_center)
+            self.ever.target = self.circle_center
 
         self.ever.img = pygame.surfarray.array3d(self.map)
         self.ever.img = np.transpose(self.ever.img, (1, 0, 2))
-        self.ever.posRobot = np.array((self.RTK.x_pos, self.RTK.y_pos, self.RTK.theta))
+        self.ever.posRobot = [self.RTK.x_pos, self.RTK.y_pos, self.RTK.theta]
 
         S = pygame.sprite.spritecollide(self.RTK, self.obstacle_group_sprite, False)
         if self.vizualaze:
@@ -114,7 +114,7 @@ class Enviroment(Env):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.draw()
-                self.done = True
+                self.done = False
                 self.reward = 0
 
                 return self.ever, self.reward, self.done, self.num_step
@@ -122,7 +122,7 @@ class Enviroment(Env):
         if self.RTK.x_pos < 3 or self.RTK.y_pos < 3 or \
            self.RTK.x_pos > self.width - 3 or self.RTK.y_pos > self.height - 3 or S:
             self.reward = -30.0
-            self.done = True
+            self.done = False
 
             return self.ever, self.reward, self.done, self.num_step
 
@@ -133,22 +133,11 @@ class Enviroment(Env):
                 self.RTK_enemy.y_pos - self.RTK.y_pos, 2))
             if (color[0], color[1], color[2]) == (255, 0, 0):
                 self.reward = -100
-                self.done = True
-                self.map.fill(self.white)
-                self.obstacle_group_sprite.draw(self.map)
-                pygame.draw.polygon(self.map, (255, 0, 0, 20), self.RTK_enemy.pointLidar)
-                self.enemy_RTK_group_sprite.draw(self.map)
-                self.RTK.draw_boom()
-                self.alies_RTK_group_sprite.draw(self.map)
-                self.ever.img = pygame.surfarray.array3d(self.map)
-                self.ever.img = np.transpose(self.ever.img, (1, 0, 2))
-                if self.vizualaze:
-                    pygame.display.update()
-                    pygame.display.flip()
+                self.done = False
                 return self.ever, self.reward, self.done, self.num_step
             if (color1[0], color1[1], color1[2]) == (0, 0, 255):
                 self.reward = 100
-                self.done = True
+                self.done = False
                 self.map.fill(self.white)
                 self.obstacle_group_sprite.draw(self.map)
                 pygame.draw.polygon(self.map, (0, 0, 255, 20), self.RTK.pointLidar)
@@ -157,22 +146,20 @@ class Enviroment(Env):
                 self.enemy_RTK_group_sprite.draw(self.map)
                 self.ever.img = pygame.surfarray.array3d(self.map)
                 self.ever.img = np.transpose(self.ever.img, (1, 0, 2))
-                if self.vizualaze:
-                    pygame.display.update()
-                    pygame.display.flip()
                 return self.ever, self.reward, self.done, self.num_step
             self.reward = -0.1 + self.koef * (self.past_d - con_d)
             self.past_d = con_d
             return self.ever, self.reward, self.done, self.num_step
 
         else:
+
             con_d = math.sqrt(math.pow(self.circle_center[0] - self.RTK.x_pos, 2) + math.pow(
                 self.circle_center[1] - self.RTK.y_pos, 2))
             S = pygame.sprite.collide_mask(self.RTK, self.spritecircle)
-            self.reward = -0.1 + self.koef * (self.past_d - con_d)
             if S:
                 self.reward = 100
-                self.done = True
+                self.done = False
+            self.reward = -0.1 + self.koef * (self.past_d - con_d)
             self.past_d = con_d
             return self.ever, self.reward, self.done, self.num_step
 
@@ -195,7 +182,7 @@ class Enviroment(Env):
         time.sleep(1)
 
     def reset(self):
-        self.done = False
+        self.done = True
         self.num_step = 0
         game_folder = os.path.dirname(__file__)
         img_folder = os.path.join(game_folder, 'img')
@@ -243,7 +230,7 @@ class Enviroment(Env):
                     (self.RTK.x_pos - self.RTK_enemy.x_pos) ** 2 + (self.RTK.y_pos - self.RTK_enemy.y_pos) ** 2)
 
             self.enemy_RTK_group_sprite.add(self.RTK_enemy)
-            self.enemy_RTK_group_sprite.update((0, random.uniform(-3.14, 3.14)))
+            self.enemy_RTK_group_sprite.update(random.randint(0, 7))
             self.past_d = math.sqrt(math.pow(self.RTK_enemy.x_pos - self.RTK.x_pos, 2) + math.pow(
                 self.RTK_enemy.y_pos - self.RTK.y_pos, 2))
             self.ever.target = (self.RTK_enemy.x_pos, self.RTK_enemy.y_pos)
@@ -268,5 +255,5 @@ class Enviroment(Env):
         self.ever.img = pygame.surfarray.array3d(self.map)
         self.ever.img = np.transpose(self.ever.img, (1, 0, 2))
         self.ever.posRobot = [self.RTK.x_pos, self.RTK.y_pos]
-        self.ever, reward, done, numstep = self.step((0, 0))
+        self.ever, reward, done, numstep = self.step(random.randint(0, 7))
         return self.ever

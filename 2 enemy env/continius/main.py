@@ -7,17 +7,17 @@ import matplotlib.pyplot as plt
 obstacle_turn = False
 vizualaze = True
 Total_war = True
-done = True
-
+done = False
+head_velocity = 0.07 #скорость повората башни в радианах
 
 Vizual = False
 
-env = Enviroment(obstacle_turn, vizualaze, Total_war)
+env = Enviroment(obstacle_turn, vizualaze, Total_war, head_velocity)
 state = env.reset()
 
 totalRew = 0
 for i in range(100):
-    while done:
+    while not done:
 
         action = (random.randint(10, 50), random.uniform(-0.2, 0.2))
         state, reward, done, numstep = env.step(action)
@@ -28,7 +28,7 @@ for i in range(100):
         if Vizual:
             plt.imshow(state.img)
             plt.pause(0.01)
-    done = True
+    done = False
     # env.draw()
     if reward == 100:
         plt.imshow(state.img)
