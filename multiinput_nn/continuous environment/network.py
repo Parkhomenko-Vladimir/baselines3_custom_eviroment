@@ -41,18 +41,16 @@ class CustomCNN(BaseFeaturesExtractor):
                 nn.Flatten())
                     
             elif key == "posRobot":
-                n_input_channels = observation_space[key].shape[0]
                             
-                extractors[key] = nn.Sequential(nn.Linear(n_input_channels, 9),
+                extractors[key] = nn.Sequential(nn.Linear(3, 9),
                                         nn.ReLU(),
                                         nn.Linear(9, 9),
                                         nn.ReLU(),
                                         nn.Linear(9, 3))
                     
             elif key == "target":
-                n_input_channels = observation_space[key].shape[0]
                             
-                extractors[key] = nn.Sequential(nn.Linear(n_input_channels, 9),
+                extractors[key] = nn.Sequential(nn.Linear(3, 9),
                                         nn.ReLU(),
                                         nn.Linear(9, 9),
                                         nn.ReLU(),
