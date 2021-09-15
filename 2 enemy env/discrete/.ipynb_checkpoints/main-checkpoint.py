@@ -5,16 +5,18 @@ import random
 import matplotlib.pyplot as plt
 import keyboard
 
-obstacle_turn = False
+obstacle_turn = True
 vizualaze = True
 Total_war = True
+num_obs = 30
+size_obs = [10, 20]
 
 done = False
 head_velocity = 0.00     #скорость повората башни в радианах
 Vizual = False
 
 
-env = Enviroment(obstacle_turn, vizualaze, Total_war, head_velocity)
+env = Enviroment(obstacle_turn, vizualaze, Total_war, head_velocity, num_obs, size_obs)
 state = env.reset()
 
 

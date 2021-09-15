@@ -4,15 +4,18 @@ import time
 import random
 import matplotlib.pyplot as plt
 
-obstacle_turn = False
+obstacle_turn = True
 vizualaze = True
 Total_war = True
 done = False
-head_velocity = 0.07 #скорость повората башни в радианах
+head_velocity = 0.07    # скорость повората башни в радианах
+num_obs = 3     # количество препятствий
+size_obs = [10, 20] # размер препятствий
+m_step = 500 # максимальное количество шагов
 
 Vizual = False
 
-env = Enviroment(obstacle_turn, vizualaze, Total_war, head_velocity)
+env = Enviroment(obstacle_turn, vizualaze, Total_war, head_velocity, num_obs, size_obs, m_step)
 state = env.reset()
 
 totalRew = 0

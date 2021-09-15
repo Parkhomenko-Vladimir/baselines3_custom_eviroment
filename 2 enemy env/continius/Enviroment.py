@@ -11,13 +11,14 @@ from Stating import State_Env
 from obstacle import Obstacle
 
 class Enviroment():
-    def __init__(self, obstacle, Viz, War, head_velocity):
+    def __init__(self, obstacle, Viz, War, head_velocity, num_obs, size_obs, m_step):
         self.mode_war = War
         self.vizualaze = Viz
         self.obstacle = obstacle
         self.height = 500           # размер окна (высота)
         self.width = 500            # размер окна (высота)
         self.ever = State_Env(self.height, self.width)      # структура для данных среды (state)
+        self.max_step = m_step
         # цвета
         self.black = (0, 0, 0)
         self.white = (255, 255, 255)
@@ -45,8 +46,8 @@ class Enviroment():
 
         # кастомизация среды
         self.circle_radius = 10     # радиус финиша
-        self.num_obstacle = 7       # количество препятствий
-        self.size_obstacle = [40, 70]   # размер препятствий
+        self.num_obstacle = num_obs       # количество препятствий
+        self.size_obstacle = size_obs   # размер препятствий
 
         # создаем группы спрайтов
         self.obstacle_group_sprite = pygame.sprite.Group()
@@ -61,7 +62,7 @@ class Enviroment():
 
     def step(self, action):
         self.num_step += 1
-        if self.num_step > 1500:
+        if self.num_step > self.max_step:
             return self.ever, self.reward, True, self.num_step
         self.alies_RTK_group_sprite.update(action)
 
@@ -233,8 +234,8 @@ class Enviroment():
 
         # кастомизация среды
         self.circle_radius = 10  # радиус финиша
-        self.num_obstacle = 7  # количество препятствий
-        self.size_obstacle = [40, 70]  # размер препятствий
+        # self.num_obstacle = 7  # количество препятствий
+        # self.size_obstacle = [40, 70]  # размер препятствий
 
         # создаем группы спрайтов
         self.obstacle_group_sprite = pygame.sprite.Group()
