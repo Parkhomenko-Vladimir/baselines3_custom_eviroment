@@ -7,7 +7,7 @@ import os
 
 
 class RTK_cls(pygame.sprite.Sprite):
-    def __init__(self, env, pos, player_img, rangelidar, velocity_head):
+    def __init__(self, env, pos, player_img, rangelidar, velocity_head, state, num):
         self.dt = 0.1
         pygame.sprite.Sprite.__init__(self)
         self.x_pos = pos[0]
@@ -22,7 +22,9 @@ class RTK_cls(pygame.sprite.Sprite):
         self.angular_speed = 0.1
         self.last_pos = 0
         self.env = env
-
+        self.num = num
+        self.state_rtk = state
+        self.state_life = True
         self.range_lidar = rangelidar
         self.revie_lidar = (-math.pi / 4, math.pi / 4)
         self.angel_lidar = np.linspace(self.revie_lidar[0], self.revie_lidar[1], 90)

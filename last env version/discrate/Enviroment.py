@@ -181,6 +181,7 @@ class Enviroment():
                         con_d[enems.num] = math.sqrt(math.pow(enems.x_pos - self.RTK.x_pos, 2) + math.pow(
                             enems.y_pos - self.RTK.y_pos, 2))
                         pygame.draw.polygon(self.map, (255, 0, 0, 20), enems.pointLidar)
+
                     self.past_d = con_d
                     self.enemy_RTK_group_sprite.draw(self.map)
                     if len(self.enemy_RTK_group_sprite) == 0:
@@ -188,6 +189,7 @@ class Enviroment():
                     if self.vizualaze:
                         pygame.display.update()
                         pygame.display.flip()
+
                     return self.ever, 100, self.done, self.num_step
                 self.reward += -0.1 + self.koef * (self.past_d[enem.num] - con_d[enem.num])
                 h += 1
@@ -234,7 +236,7 @@ class Enviroment():
         player_img = pygame.image.load(os.path.join(img_folder, 'rtk.png')).convert()
 
         # кастомизация среды
-        self.circle_radius = 10  # радиус финиша
+#         self.circle_radius = 5  # радиус финиша
         # self.num_obstacle = 7  # количество препятствий
         # self.size_obstacle = [40, 70]  # размер препятствий
 
@@ -259,7 +261,6 @@ class Enviroment():
             SS = pygame.sprite.spritecollide(self.RTK, self.obstacle_group_sprite, False)
         # добавляем робота в группу спрайтов робота
         self.alies_RTK_group_sprite.add(self.RTK)
-
         if self.mode_war:
             self.enemy_RTK_group_sprite = pygame.sprite.Group()
             self.past_d = np.zeros(self.num_enemy)
@@ -286,8 +287,7 @@ class Enviroment():
                     for enem in self.enemy_RTK_group_sprite.spritedict:
                         Sd[enem.num] = math.sqrt(
                             (enem.x_pos - self.RTK_enemy.x_pos) ** 2 + (enem.y_pos - self.RTK_enemy.y_pos) ** 2)
-
-                self.RTK_enemy.update2()
+                self.RTK_enemy.update(random.randint(0, 7))
                 self.enemy_RTK_group_sprite.add(self.RTK_enemy)
 
                 self.past_d[i] = math.sqrt(math.pow(self.RTK_enemy.x_pos - self.RTK.x_pos, 2) + math.pow(
@@ -311,5 +311,5 @@ class Enviroment():
             self.ever.target = self.circle_center
 
 
-        self.ever, reward, done, numstep = self.step((0, 0))
+        self.ever, reward, done, numstep = self.step(random.randint(0, 7))
         return self.ever
