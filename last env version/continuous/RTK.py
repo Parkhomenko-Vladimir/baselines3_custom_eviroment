@@ -28,13 +28,13 @@ class RTK_cls(pygame.sprite.Sprite):
         self.range_lidar = rangelidar
         self.revie_lidar = (-math.pi / 4, math.pi / 4)
         self.angel_lidar = np.linspace(self.revie_lidar[0], self.revie_lidar[1], 90)
-
-        self.pointLidar = ()
+        self.pointLidarFull = np.full((self.angel_lidar.shape[0]), self.range_lidar)
+        self.pointLidar = np.zeros((self.angel_lidar.shape[0]+2, 2))
 
         self.head_angle_velocity = velocity_head  #скорость поворота башни
 
     def update(self, action):
-        self.last_pos = [self.x_pos, self.y_pos]
+        self.last_pos = [self.x_pos, self.y_pos, self.theta]
         self.x_pos += action[0] * math.cos(self.theta) * self.dt
         self.y_pos -= action[0] * math.sin(self.theta) * self.dt
         self.theta += action[1] * self.dt
@@ -45,6 +45,7 @@ class RTK_cls(pygame.sprite.Sprite):
         self.image = pygame.transform.rotozoom(self.img, math.degrees(self.theta), 1)
         self.image.set_colorkey((0, 0, 0))
         self.rect = self.image.get_rect(center=(self.x_pos, self.y_pos))
+        self.mask = pygame.mask.from_surface(self.image)
 
     def update2(self):
 
@@ -70,7 +71,13 @@ class RTK_cls(pygame.sprite.Sprite):
         n = 1+1
 
     def sesor(self):
-        data, self.pointLidar = self.sense_obstacle()
+        if self.env.obstacle:
+            data, self.pointLidar = self.sense_obstacle()
+        else:
+            self.pointLidar[1:-1, 0] = np.multiply(self.pointLidarFull, np.cos(self.angel_lidar - self.theta)) + self.x_pos
+            self.pointLidar[1:-1, 1] = np.multiply(self.pointLidarFull, np.sin(self.angel_lidar - self.theta)) + self.y_pos
+            self.pointLidar[0, :] = self.x_pos, self.y_pos
+            self.pointLidar[-1, :] = self.x_pos, self.y_pos
 
     def state(self):
         return self.x_pos, self.y_pos
