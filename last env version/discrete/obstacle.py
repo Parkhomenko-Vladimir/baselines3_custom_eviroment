@@ -8,4 +8,5 @@ class Obstacle(pygame.sprite.Sprite):
         self.image.fill((0, 0, 0))
         self.rect = self.image.get_rect()
         self.rect.center = [random.randint(0, sizeX), random.randint(0, sizeY)]
+        self.mask = pygame.mask.from_surface(self.image)
 
