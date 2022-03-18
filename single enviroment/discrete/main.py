@@ -1,5 +1,7 @@
 from Enviroment import Enviroment
-
+import pygame
+import time
+import random
 import matplotlib.pyplot as plt
 import keyboard
 
@@ -7,20 +9,25 @@ obstacle_turn = True
 vizualaze = True
 Total_war = True
 done = False
-head_velocity = 0.4    # скорость повората башни в радианах
-num_obs = 40    # количество препятствий
-size_obs = [30, 100]     # размер препятствий
+head_velocity = 0.00004    # скорость повората башни в радианах
+num_obs = 4    # количество препятствий
+size_obs = [10, 20]     # размер препятствий
 m_step = 500    # максимальное количество шагов
 num_enemy = 1   # количество противников
 
+
+#04.03.2022 пример настройки необходимых значений для реворда
+rew_col = -40
+rew_win = 23600
+rew_defeat = -600
 Vizual = False
 
 
-for ist in range(100):
-    env = Enviroment(obstacle_turn, vizualaze, Total_war, head_velocity, num_obs, num_enemy, size_obs, m_step)
-    state = env.reset()
+
+env = Enviroment(obstacle_turn, vizualaze, Total_war, head_velocity, num_obs, num_enemy, size_obs, m_step, rew_col, rew_win, rew_defeat)
+state = env.reset()
     #plt.imshow(state.img)
-    plt.pause(1.5) # center_obs - массив препятствий [0] - координата по Х, [1] - координата по Y, [2] - ширина, [3] - высота
+    #plt.pause(1.5) # center_obs - массив препятствий [0] - координата по Х, [1] - координата по Y, [2] - ширина, [3] - высота
 
 
 for i in range(120):

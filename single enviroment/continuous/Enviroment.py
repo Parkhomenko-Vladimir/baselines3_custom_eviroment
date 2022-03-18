@@ -10,7 +10,7 @@ from Stating import State_Env
 from obstacle import Obstacle
 
 class Enviroment():
-    def __init__(self, obstacle, Viz, War, head_velocity, num_obs, num_enemy, size_obs, m_step):
+    def __init__(self, obstacle, Viz, War, head_velocity, num_obs, num_enemy, size_obs, m_step, in_collision_rew, in_win_rew, in_defeat_rew):
         self.mode_war = War
         self.vizualaze = Viz
         self.obstacle = obstacle
@@ -32,7 +32,9 @@ class Enviroment():
         self.koef = 3
         self.num_step = 0
         self.head_velocity = head_velocity
-
+        self.rew_collision = in_collision_rew
+        self.rew_win = in_win_rew
+        self.rew_defeat = in_defeat_rew
         # настройка pygame элементов
         if self.vizualaze:
             self.map = pygame.display.set_mode((self.width, self.height))
@@ -42,7 +44,7 @@ class Enviroment():
 
         game_folder = os.path.dirname(__file__)
         img_folder = os.path.join(game_folder, 'img')
-        player_img = pygame.image.load(os.path.join(img_folder, 'rtk.png')).convert()
+        player_img = pygame.image.load(os.path.join(img_folder, 'rtk2.png')).convert()
         self.boom = pygame.image.load(os.path.join(img_folder, 'boom.png')).convert()
 
         # кастомизация среды
@@ -134,17 +136,15 @@ class Enviroment():
 
         if self.RTK.x_pos < 3 or self.RTK.y_pos < 3 or \
            self.RTK.x_pos > self.width - 3 or self.RTK.y_pos > self.height - 3 or state:
-            self.reward = -30.0
+            self.reward = self.rew_collision
             self.done = True
-
             return self.ever, self.reward, self.done, self.num_step
-
 
 
         if self.mode_war:
 
             if (color[0], color[1], color[2]) == (255, 0, 0):
-                self.reward = -100
+                self.reward = self.rew_defeat
                 self.done = True
                 self.map.fill(self.white)
                 self.obstacle_group_sprite.draw(self.map)
@@ -197,7 +197,7 @@ class Enviroment():
                     if self.vizualaze:
                         pygame.display.update()
                         pygame.display.flip()
-                    return self.ever, 100, self.done, self.num_step
+                    return self.ever, self.rew_win, self.done, self.num_step
                 self.reward += -0.1 + self.koef * (self.past_d[enem.num] - con_d[enem.num])
                 h += 1
 
@@ -211,7 +211,7 @@ class Enviroment():
             S = pygame.sprite.collide_mask(self.RTK, self.spritecircle)
             self.reward = -0.1 + self.koef * (self.past_d - con_d)
             if S:
-                self.reward = 100
+                self.reward = self.rew_win
                 self.done = True
 
             self.past_d = con_d
@@ -223,7 +223,7 @@ class Enviroment():
 
         game_folder = os.path.dirname(__file__)
         img_folder = os.path.join(game_folder, 'img')
-        player_img = pygame.image.load(os.path.join(img_folder, 'rtk.png')).convert()
+        player_img = pygame.image.load(os.path.join(img_folder, 'rtk2.png')).convert()
         it = 0
         while it==0:
             it = 20
@@ -249,7 +249,7 @@ class Enviroment():
 
             # создаем робота в случайной точке карте
             self.RTK = RTK_cls(self, [random.randint(50, self.width - 50), random.randint(50, self.height - 50)],
-                               player_img, 80, self.head_velocity, 0, 0)
+                               player_img, 40, self.head_velocity, 0, 0)
             # проверяем не попал ли робот в препятствие
             self.circle_center = (random.randint(20, self.width - 20), random.randint(20, self.height - 20))
             self.spritecircle = pygame.sprite.Sprite()
@@ -279,7 +279,7 @@ class Enviroment():
                 for i in range(self.num_enemy):
 
                     self.RTK_enemy = RTK_cls(self, [random.randint(50, self.width - 50), random.randint(50, self.height - 50)],
-                                             player_img, 90, self.head_velocity, 1, i)
+                                             player_img, 45, self.head_velocity, 1, i)
 
                     Sd = np.zeros((len(self.enemy_RTK_group_sprite.spritedict)))
 

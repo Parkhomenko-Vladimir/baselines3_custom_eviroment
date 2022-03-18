@@ -13,7 +13,7 @@ class RTK_cls(pygame.sprite.Sprite):
         self.img = player_img
         self.img.set_colorkey((0, 0, 0))
         self.image = self.img
-        self.rect = pygame.Rect(0, 0, 40, 21)
+        self.rect = pygame.Rect(0, 0, 20, 10)
         self.rect.center = (self.x_pos, self.y_pos)
         self.lineral_speed = 10
         self.angular_speed = 0.1

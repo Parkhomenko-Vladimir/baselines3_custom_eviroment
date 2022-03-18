@@ -9,17 +9,19 @@ vizualaze = True
 Total_war = True
 done = False
 head_velocity = 0.01    # скорость повората башни в радианах
-num_obs = 100   # количество препятствий
-size_obs = [30, 60]     # размер препятствий
+num_obs = 10   # количество препятствий
+size_obs = [10, 20]     # размер препятствий
 m_step = 500    # максимальное количество шагов
 num_enemy = 1   # количество противников
+rew_col = -40
+rew_win = 23600
+rew_defeat = -600
 
-Vizual = False
-for ist in range(100):
-    env = Enviroment(obstacle_turn, vizualaze, Total_war, head_velocity, num_obs, num_enemy, size_obs, m_step)
-    state = env.reset()
+
+env = Enviroment(obstacle_turn, vizualaze, Total_war, head_velocity, num_obs, num_enemy, size_obs, m_step, rew_col, rew_win, rew_defeat)
+state = env.reset()
     #plt.imshow(state.img)
-    plt.pause(1.5)
+    #plt.pause(1.5)
 totalRew = 0
 for i in range(100):
     while not done:
@@ -30,8 +32,7 @@ for i in range(100):
         print("Шаг: {2} Награда: {0}, Состояние: {1}, Положение РТК: {4} Положение цели: {5} Действие: {3}" \
               .format(reward, done, numstep, action, state.posRobot, state.target, totalRew))
 
-    if Vizual:
-        plt.imshow(state.img)
+
 
     done = False
     # env.draw()
