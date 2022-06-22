@@ -10,7 +10,7 @@ from Stating import State_Env
 from obstacle import Obstacle
 
 class Enviroment():
-    def __init__(self, obstacle, Viz, War, head_velocity, num_obs, num_enemy, size_obs, m_step, in_collision_rew, in_win_rew, in_defeat_rew):
+    def __init__(self, obstacle, Viz, War, head_velocity, num_obs, num_enemy, size_obs, m_step, in_collision_rew, in_win_rew, in_defeat_rew, epsilon, sigma):
         self.mode_war = War
         self.vizualaze = Viz
         self.obstacle = obstacle
@@ -28,7 +28,7 @@ class Enviroment():
         self.yel = (255, 255, 0)
         # настройка выходных данных
         self.done = False
-        self.reward = 0
+        self.reward = [0,0]
         self.koef = 3
         self.num_step = 0
         self.head_velocity = head_velocity
@@ -55,11 +55,14 @@ class Enviroment():
         # создаем группы спрайтов
         self.obstacle_group_sprite = pygame.sprite.Group()
         self.alies_RTK_group_sprite = pygame.sprite.Group()
-
+        self.obstacleInfo = np.zeros((num_obs, 3))
+        self.epsilon = epsilon
+        self.sigma = sigma
         self.map_obs = np.zeros((self.width, self.height))
 
 
     def step(self, action):
+        obstacleByStep = np.zeros([self.num_obstacle, 2])
         self.num_step += 1
         if self.num_step > self.max_step:
             return self.ever, self.reward, True, self.num_step
@@ -67,7 +70,7 @@ class Enviroment():
 
         self.map.fill(self.white)
         self.obstacle_group_sprite.draw(self.map)
-
+        self.reward = [0, 0]
 
 
         if self.mode_war:
@@ -124,7 +127,7 @@ class Enviroment():
             if event.type == pygame.QUIT:
                 self.draw()
                 self.done = True
-                self.reward = 0
+                self.reward = [0,0]
 
                 return self.ever, self.reward, self.done, self.num_step
 
@@ -136,15 +139,20 @@ class Enviroment():
 
         if self.RTK.x_pos < 3 or self.RTK.y_pos < 3 or \
            self.RTK.x_pos > self.width - 3 or self.RTK.y_pos > self.height - 3 or state:
-            self.reward = self.rew_collision
+            self.reward[0]  = self.rew_collision
             self.done = True
             return self.ever, self.reward, self.done, self.num_step
-
+        for i in range(self.num_obstacle):
+            obstacleByStep[i, :] = np.array([(math.sqrt(
+                (self.obstacleInfo[i, 0] - self.RTK.x_pos) ** 2 + (self.obstacleInfo[i, 1] - self.RTK.y_pos) ** 2) <= 2*self.obstacleInfo[i, 2]),
+                                             self.epsilon * math.exp(-(((self.RTK.x_pos - self.obstacleInfo[i, 0]) ** 2) / (
+                                                         2 * (self.sigma ** 2)) + ((self.RTK.y_pos - self.obstacleInfo[i, 1]) ** 2) / (2 * (self.sigma ** 2))))])
+        self.reward[1] = -np.sum(obstacleByStep[:, 1] * obstacleByStep[:, 0])
 
         if self.mode_war:
 
             if (color[0], color[1], color[2]) == (255, 0, 0):
-                self.reward = self.rew_defeat
+                self.reward[0]  = self.rew_defeat
                 self.done = True
                 self.map.fill(self.white)
                 self.obstacle_group_sprite.draw(self.map)
@@ -167,11 +175,11 @@ class Enviroment():
                     pygame.display.flip()
                 return self.ever, self.reward, self.done, self.num_step
             h = 0
-            con_d = np.zeros(self.num_enemy)
-            self.reward = 0
+            #con_d = np.zeros(self.num_enemy)
+            self.reward[0] = 0
             for enem in self.enemy_RTK_group_sprite.spritedict:
-                con_d[enem.num] = math.sqrt(math.pow(enem.x_pos - self.RTK.x_pos, 2) + math.pow(
-                    enem.y_pos - self.RTK.y_pos, 2))
+                #con_d[enem.num] = math.sqrt(math.pow(enem.x_pos - self.RTK.x_pos, 2) + math.pow(
+                    #enem.y_pos - self.RTK.y_pos, 2))
 
                 if (color1[h][0], color1[h][1], color1[h][2]) == (0, 0, 255):
 
@@ -185,36 +193,37 @@ class Enviroment():
                     self.ever.img = pygame.surfarray.array3d(self.map)
                     self.ever.img = np.transpose(self.ever.img, (1, 0, 2))
                     self.enemy_RTK_group_sprite.remove(enem)
-                    con_d = np.zeros(self.num_enemy)
+                    #con_d = np.zeros(self.num_enemy)
                     for enems in self.enemy_RTK_group_sprite.spritedict:
-                        con_d[enems.num] = math.sqrt(math.pow(enems.x_pos - self.RTK.x_pos, 2) + math.pow(
-                            enems.y_pos - self.RTK.y_pos, 2))
+                        #con_d[enems.num] = math.sqrt(math.pow(enems.x_pos - self.RTK.x_pos, 2) + math.pow(
+                            #enems.y_pos - self.RTK.y_pos, 2))
                         pygame.draw.polygon(self.map, (255, 0, 0, 20), enems.pointLidar)
-                    self.past_d = con_d
+                    #self.past_d = con_d
                     self.enemy_RTK_group_sprite.draw(self.map)
                     if len(self.enemy_RTK_group_sprite) == 0:
                         self.done = True
                     if self.vizualaze:
                         pygame.display.update()
                         pygame.display.flip()
-                    return self.ever, self.rew_win, self.done, self.num_step
-                self.reward += -0.1 + self.koef * (self.past_d[enem.num] - con_d[enem.num])
+                    self.reward[0] = self.rew_win
+                    return self.ever, self.reward, self.done, self.num_step
+                self.reward[0] = self.reward[0] #+= -0.1 + self.koef * (self.past_d[enem.num] - con_d[enem.num])
                 h += 1
 
-            self.past_d = con_d
+            #self.past_d = con_d
             return self.ever, self.reward, self.done, self.num_step
 
         else:
 
-            con_d = math.sqrt(math.pow(self.circle_center[0] - self.RTK.x_pos, 2) + math.pow(
-                self.circle_center[1] - self.RTK.y_pos, 2))
+            #con_d = math.sqrt(math.pow(self.circle_center[0] - self.RTK.x_pos, 2) + math.pow(
+                #self.circle_center[1] - self.RTK.y_pos, 2))
             S = pygame.sprite.collide_mask(self.RTK, self.spritecircle)
-            self.reward = -0.1 + self.koef * (self.past_d - con_d)
+            self.reward[0] = self.reward[0]#-0.1 + self.koef * (self.past_d - con_d)
             if S:
-                self.reward = self.rew_win
+                self.reward[0] = self.rew_win
                 self.done = True
 
-            self.past_d = con_d
+            #self.past_d = con_d
             return self.ever, self.reward, self.done, self.num_step
 
     def reset(self):
@@ -236,6 +245,9 @@ class Enviroment():
             if self.obstacle:
                 for i in range(self.num_obstacle):
                     obs = Obstacle(self.width, self.height, self.size_obstacle)
+                    self.obstacleInfo[i, :] = np.array([obs.rect.centerx, obs.rect.centery,
+                                                        math.sqrt((obs.rect.bottomright[0] - obs.rect.topleft[0]) ** 2 + (
+                                                                        obs.rect.bottomright[1] - obs.rect.topleft[1]) ** 2)])
                     self.obstacle_group_sprite.add(obs)
             self.obstacle_group_sprite.add(static_obs(0, 250, [1, 500]))
             self.obstacle_group_sprite.add(static_obs(250, 0, [500, 1]))
@@ -275,7 +287,7 @@ class Enviroment():
 
             if self.mode_war:
                 self.enemy_RTK_group_sprite = pygame.sprite.Group()
-                self.past_d = np.zeros(self.num_enemy)
+                #self.past_d = np.zeros(self.num_enemy)
                 for i in range(self.num_enemy):
 
                     self.RTK_enemy = RTK_cls(self, [random.randint(50, self.width - 50), random.randint(50, self.height - 50)],
@@ -315,8 +327,8 @@ class Enviroment():
                     self.RTK_enemy.update2()
                     self.enemy_RTK_group_sprite.add(self.RTK_enemy)
 
-                    self.past_d[i] = math.sqrt(math.pow(self.RTK_enemy.x_pos - self.RTK.x_pos, 2) + math.pow(
-                        self.RTK_enemy.y_pos - self.RTK.y_pos, 2))
+                    #self.past_d[i] = math.sqrt(math.pow(self.RTK_enemy.x_pos - self.RTK.x_pos, 2) + math.pow(
+                        #self.RTK_enemy.y_pos - self.RTK.y_pos, 2))
 
             else:
                 self.circle_center = (random.randint(20, self.width-20), random.randint(20, self.height-20))
@@ -333,8 +345,8 @@ class Enviroment():
                     if it == 0:
                         break
                     it = it - 1
-                self.past_d = math.sqrt(
-                    math.pow(self.circle_center[0] - self.RTK.x_pos, 2) + math.pow(self.circle_center[1] - self.RTK.y_pos, 2))
+                #self.past_d = math.sqrt(
+                    #math.pow(self.circle_center[0] - self.RTK.x_pos, 2) + math.pow(self.circle_center[1] - self.RTK.y_pos, 2))
                 self.ever.target = self.circle_center
 
 
