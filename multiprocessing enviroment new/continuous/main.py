@@ -18,8 +18,11 @@ rew_win = 23600
 rew_defeat = -600
 sigma = 20
 delta = 100
+optionEnemy = [80, 150]     # настройки противника [0] - дальность СТЗ; [1] - угол СТЗ (градусы)
+optionAlie = [110, 120]     # настройки союзника [0] - дальность СТЗ; [1] - угол СТЗ (градусы)
 
-env = Enviroment(obstacle_turn, vizualaze, Total_war, head_velocity, num_obs, num_enemy, size_obs, m_step, rew_col, rew_win, rew_defeat, sigma, delta)
+
+env = Enviroment(obstacle_turn, vizualaze, Total_war, head_velocity, num_obs, num_enemy, size_obs, m_step, rew_col, rew_win, rew_defeat, sigma, delta, optionEnemy, optionAlie)
 state = env.reset()
     #plt.imshow(state.img)
     #plt.pause(1.5)

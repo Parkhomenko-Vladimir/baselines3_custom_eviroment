@@ -11,6 +11,7 @@ import torch
 from tqdm import tqdm
 import warnings
 
+
 class CustomEnv(gym.Env):
     '''
     Оборочивание класса среды в среду gym
@@ -19,7 +20,7 @@ class CustomEnv(gym.Env):
 
     def __init__(self, obstacle_turn: bool, Total_war: bool, num_obs: int, num_enemy: int, 
                  size_obs, steps_limit, vizualaze=False, head_velocity=0.01,
-                rew_col = -100,rew_win=100, rew_defeat = -100):
+                rew_col = -100,rew_win=100, rew_defeat = -100, EnLidSet = [80, 150], AlLidSet = [110, 120]):
         '''
         Инициализация класса среды
         :param obstacle_turn: (bool) Флаг генерации препятствий
@@ -39,9 +40,14 @@ class CustomEnv(gym.Env):
         self.rew_win = rew_win
         self.rew_defeat = rew_defeat
                 
+        optionEnemy = [80, 150]     # настройки противника [0] - дальность СТЗ; [1] - угол СТЗ (градусы)
+        optionAlie = [110, 120]     # настройки союзника [0] - дальность СТЗ; [1] - угол СТЗ (градусы)   
+            
         self.enviroment = Enviroment(obstacle_turn, vizualaze, Total_war,
-                                     head_velocity, num_obs, num_enemy, size_obs, steps_limit,
-                                     rew_col, rew_win, rew_defeat,epsilon = 100,sigma = 30)
+                                     head_velocity, num_obs, num_enemy,
+                                     size_obs, steps_limit, rew_col,
+                                     rew_win, rew_defeat,epsilon = 100,
+                                     sigma = 30,optionEnemy = EnLidSet, optionAlie = AlLidSet)
 
         self.action_space = spaces.Box(low=np.array([-1, -1]), high=np.array([1, 1]), dtype=np.float16)
         self.observation_space = gym.spaces.Dict({

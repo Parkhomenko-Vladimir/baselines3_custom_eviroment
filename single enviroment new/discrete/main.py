@@ -9,7 +9,7 @@ obstacle_turn = True
 vizualaze = True
 Total_war = True
 done = False
-head_velocity = 0.00004    # скорость повората башни в радианах
+head_velocity = 0.04    # скорость повората башни в радианах
 num_obs = 4    # количество препятствий
 size_obs = [10, 20]     # размер препятствий
 m_step = 500    # максимальное количество шагов
@@ -22,9 +22,11 @@ rew_win = 23600
 rew_defeat = -600
 Vizual = False
 
+optionEnemy = [120, 120]     # настройки противника [0] - дальность СТЗ; [1] - угол СТЗ (градусы)
+optionAlie = [50, 90]     # настройки союзника [0] - дальность СТЗ; [1] - угол СТЗ (градусы)
 
 
-env = Enviroment(obstacle_turn, vizualaze, Total_war, head_velocity, num_obs, num_enemy, size_obs, m_step, rew_col, rew_win, rew_defeat)
+env = Enviroment(obstacle_turn, vizualaze, Total_war, head_velocity, num_obs, num_enemy, size_obs, m_step, rew_col, rew_win, rew_defeat,4,6, optionEnemy, optionAlie)
 state = env.reset()
     #plt.imshow(state.img)
     #plt.pause(1.5) # center_obs - массив препятствий [0] - координата по Х, [1] - координата по Y, [2] - ширина, [3] - высота

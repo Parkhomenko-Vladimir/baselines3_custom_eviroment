@@ -4,7 +4,7 @@ import numpy as np
 import random
 
 class RTK_cls(pygame.sprite.Sprite):
-    def __init__(self, env, pos, player_img, rangelidar, velocity_head, state, num):
+    def __init__(self, env, pos, player_img, rangelidar, anglelidar, velocity_head, state, num):
         self.dt = 0.1
         pygame.sprite.Sprite.__init__(self)
         self.x_pos = pos[0]
@@ -23,8 +23,8 @@ class RTK_cls(pygame.sprite.Sprite):
         self.state_rtk = state
         self.state_life = True
         self.range_lidar = rangelidar
-        self.revie_lidar = (-math.pi / 4, math.pi / 4)
-        self.num_ray = 90
+        self.revie_lidar = (-math.radians(anglelidar)/2, math.radians(anglelidar)/2)
+        self.num_ray = anglelidar
         self.angel_lidar = np.linspace(self.revie_lidar[0], self.revie_lidar[1], self.num_ray)
         self.pointLidarFull = np.full((self.angel_lidar.shape[0]), self.range_lidar)
         self.pointLidar = np.zeros((self.angel_lidar.shape[0] + 2, 2))

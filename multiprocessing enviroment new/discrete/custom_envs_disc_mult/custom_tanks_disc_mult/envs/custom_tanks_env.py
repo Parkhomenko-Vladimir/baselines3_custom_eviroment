@@ -14,7 +14,7 @@ class CustomEnv(gym.Env):
 
     def __init__(self, obstacle_turn: bool, Total_war: bool, num_obs: int, num_enemy: int, 
                  size_obs, steps_limit, vizualaze = False, head_velocity = 0.01, rew_col = -70,
-                 rew_win = 100, rew_defeat = -100):
+                 rew_win = 100, rew_defeat = -100 , EnemyLidSet = [120, 120] , AllyLidSet = [50, 90]):
         '''
         Инициализация класса среды
         :param obstacle_turn: (bool) Флаг генерации препятствий
@@ -28,13 +28,18 @@ class CustomEnv(gym.Env):
         self.proportional_coef = 0.01
         self.imd_dim = 100
         
+        # optionEnemy = [120, 120]     # настройки противника [0] - дальность СТЗ; [1] - угол СТЗ (градусы)
+        # optionAlie = [50, 90]        # настройки союзника [0] - дальность СТЗ; [1] - угол СТЗ (градусы)
+        
         self.rew_col = rew_col
         self.rew_win = rew_win
         self.rew_defeat = rew_defeat
         
         self.enviroment = Enviroment(obstacle_turn, vizualaze, Total_war,
-                                     head_velocity, num_obs, num_enemy, size_obs, steps_limit,
-                                     rew_col, rew_win, rew_defeat,epsilon = 100,sigma =30)
+                                     head_velocity, num_obs, num_enemy, 
+                                     size_obs, steps_limit, rew_col, 
+                                     rew_win, rew_defeat,epsilon = 100,
+                                     sigma = 30, optionEnemy = EnemyLidSet, optionAlie = AllyLidSet)
 
 
         self.action_space = spaces.Discrete(8)
@@ -198,6 +203,3 @@ class CustomEnv(gym.Env):
         print("destroyed: ", destroyed/num_games)
         print("loss: ",loss/num_games)
         print("collision: ",collision/num_games)
-        print("loss: ",loss/num_games)
-        print("collision: ",collision/num_games)
-

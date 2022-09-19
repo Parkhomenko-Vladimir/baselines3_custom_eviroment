@@ -10,7 +10,7 @@ from Stating import State_Env
 from obstacle import Obstacle
 
 class Enviroment():
-    def __init__(self, obstacle, Viz, War, head_velocity, num_obs, num_enemy, size_obs, m_step, in_collision_rew, in_win_rew, in_defeat_rew, epsilon, sigma):
+    def __init__(self, obstacle, Viz, War, head_velocity, num_obs, num_enemy, size_obs, m_step, in_collision_rew, in_win_rew, in_defeat_rew, epsilon, sigma, optionEnemy, optionAlie):
         self.mode_war = War
         self.vizualaze = Viz
         self.obstacle = obstacle
@@ -46,6 +46,12 @@ class Enviroment():
         img_folder = os.path.join(game_folder, 'img')
         player_img = pygame.image.load(os.path.join(img_folder, 'rtk2.png')).convert()
         self.boom = pygame.image.load(os.path.join(img_folder, 'boom.png')).convert()
+
+        self.rangeenemy = optionEnemy[0]
+        self.anglenemy = optionEnemy[1]
+
+        self.rangealie = optionAlie[0]
+        self.anglalie = optionAlie[1]
 
         # кастомизация среды
         self.circle_radius = 15     # радиус финиша
@@ -261,7 +267,7 @@ class Enviroment():
 
             # создаем робота в случайной точке карте
             self.RTK = RTK_cls(self, [random.randint(50, self.width - 50), random.randint(50, self.height - 50)],
-                               player_img, 40, self.head_velocity, 0, 0)
+                               player_img, self.rangealie, self.anglalie, self.head_velocity, 0, 0)
             # проверяем не попал ли робот в препятствие
             self.circle_center = (random.randint(20, self.width - 20), random.randint(20, self.height - 20))
             self.spritecircle = pygame.sprite.Sprite()
@@ -291,7 +297,7 @@ class Enviroment():
                 for i in range(self.num_enemy):
 
                     self.RTK_enemy = RTK_cls(self, [random.randint(50, self.width - 50), random.randint(50, self.height - 50)],
-                                             player_img, 45, self.head_velocity, 1, i)
+                                             player_img, self.rangeenemy, self.anglenemy, self.head_velocity, 1, i)
 
                     Sd = np.zeros((len(self.enemy_RTK_group_sprite.spritedict)))
 

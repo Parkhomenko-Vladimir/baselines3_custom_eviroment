@@ -6,7 +6,7 @@ import os
 
 
 class RTK_cls(pygame.sprite.Sprite):
-    def __init__(self, env, pos, player_img, range_lidar, head_velocity, state, num):
+    def __init__(self, env, pos, player_img, rangelidar, anglelidar, head_velocity, state, num):
         self.dt = 0.1
         pygame.sprite.Sprite.__init__(self)
         self.x_pos = pos[0]
@@ -46,14 +46,14 @@ class RTK_cls(pygame.sprite.Sprite):
         self.theta = self.state_angular[random.randint(0, 7)]
         self.env = env
         self.state_rtk = state
-        self.range_lidar = range_lidar
-        self.revie_lidar = (-math.pi/4, math.pi/4)
-        self.angel_lidar = np.linspace(self.revie_lidar[0], self.revie_lidar[1], 90)
 
-
-        self.mask = pygame.mask.from_surface(self.image)
-        self.pointLidar = np.zeros((self.angel_lidar.shape[0]+2, 2))
+        self.range_lidar = rangelidar
+        self.revie_lidar = (-math.radians(anglelidar) / 2, math.radians(anglelidar) / 2)
+        self.num_ray = anglelidar
+        self.angel_lidar = np.linspace(self.revie_lidar[0], self.revie_lidar[1], self.num_ray)
         self.pointLidarFull = np.full((self.angel_lidar.shape[0]), self.range_lidar)
+        self.pointLidar = np.zeros((self.angel_lidar.shape[0] + 2, 2))
+
         self.head_angle_velocity = math.degrees(head_velocity)  # скорость поворота башни
 
 
